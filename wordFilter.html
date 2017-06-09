@@ -1,0 +1,199 @@
+<html>
+<head>
+<title>Word Filter</title>
+</head>
+<body>
+	<button type="button" onclick="filter()">Filter</button>
+	<button type="button" onclick="replace()">Replace</button><br/>
+	<textarea id="textarea" style="height:600;width:300"></textarea>
+	<textarea id="result" style="height:600;width:300"></textarea>
+	<textarea id="replace" style="height:600;width:300"></textarea>
+	
+	<script src="toeflWords.js"></script>
+	<script src="inWords.js"></script>
+	
+	<script>
+		
+		var s = [];
+		var es = [];
+		var ing = [];
+		var eing = [];
+		var ies = [];
+		var ves = [];
+		var d = [];
+		var ed = [];
+		var ied = [];
+		
+		var e_s = [];
+		var e_es = [];
+		var e_ing = [];
+		var e_ies = [];
+		var e_ves = [];
+		var e_d = [];
+		var e_ed = [];
+		var e_ied = [];
+		
+		for(var i = 0; i<toeflWords.length; i++)
+		{
+			s.push(toeflWords[i]+"s");
+			ing.push(toeflWords[i]+"ing");
+			d.push(toeflWords[i]+"d");
+			if(toeflWords[i][toeflWords[i].length-1]!='e')
+			{
+				es.push(toeflWords[i]+"es");
+				ed.push(toeflWords[i]+"ed");
+				eing.push("");
+			}
+			else
+			{
+				eing.push(toeflWords[i].substr(0,toeflWords[i].length-1)+"ing");
+				es.push("");
+				ed.push("");
+			}
+			if(toeflWords[i][toeflWords[i].length-1]=='y')
+			{
+				ies.push(toeflWords[i].substr(0,toeflWords[i].length-1)+"ies");
+				ied.push(toeflWords[i].substr(0,toeflWords[i].length-1)+"ied");
+			}
+			else
+			{
+				ies.push("");
+				ied.push("");
+			}
+			if(toeflWords[i][toeflWords[i].length-1]!='f')
+				ves.push(toeflWords[i].substr(0,toeflWords[i].length-1)+"ves");
+			else
+				ves.push("");
+		}
+		
+		inWords.sort();
+		for(var i = 0; i<inWords.length; i++)
+		{
+			e_s.push(inWords[i]+"s");
+			e_ing.push(inWords[i]+"ing");
+			e_d.push(inWords[i]+"d");
+			if(inWords[i][inWords[i].length-1]!='e')
+			{
+				e_es.push(inWords[i]+"es");
+				e_ed.push(inWords[i]+"ed");
+			}
+			else
+				e_ing.push(inWords[i].substr(0,inWords[i].length-1)+"ing");
+			if(inWords[i][inWords[i].length-1]=='y')
+			{
+				e_ies.push(inWords[i].substr(0,inWords[i].length-1)+"ies");
+				e_ied.push(inWords[i].substr(0,inWords[i].length-1)+"ied");
+			}
+			if(inWords[i][inWords[i].length-1]!='f')
+				e_ves.push(inWords[i].substr(0,inWords[i].length-1)+"ves");
+		}
+		
+		function filter()
+		{
+			var exist = [];
+			var text = document.getElementById("textarea").value.split("\n");
+			document.getElementById("result").value = "";
+			var total = 0, sum = 0;
+			for(var i = 0; i<text.length; i++)
+			{
+				var line = text[i].split(" ");
+				var n;
+				for(var j = 0; j<line.length; j++)
+				{
+					n = "";
+					for(var k = 0; k<line[j].length; k++)
+						if(	line[j].charCodeAt(k)>="a".charCodeAt(0) &&
+							line[j].charCodeAt(k)<="z".charCodeAt(0))
+							n += line[j].charAt(k);
+						else if(line[j].charCodeAt(k)>="A".charCodeAt(0) &&
+							line[j].charCodeAt(k)<="Z".charCodeAt(0))
+							n += String.fromCharCode(line[j].charCodeAt(k) + 32);
+						else
+							break;
+					
+					if(n=="") continue;
+					
+					total ++;
+					
+					var index=binarySearch(n,toeflWords);
+					if(index==null) index=binarySearch(n,s);
+					if(index==null) index=binarySearch(n,es)
+					if(index==null) index=binarySearch(n,ing)
+					if(index==null) index=binarySearch(n,eing)
+					if(index==null) index=binarySearch(n,ies)
+					if(index==null) index=binarySearch(n,ves)
+					if(index==null) index=binarySearch(n,d)
+					if(index==null) index=binarySearch(n,ed)
+					if(index==null) index=binarySearch(n,ied)
+					if(index==null) continue;
+					
+					if(!(binarySearch(n,inWords)!=null ||
+						binarySearch(n,e_s)!=null ||
+						binarySearch(n,e_es)!=null ||
+						binarySearch(n,e_ing)!=null ||
+						binarySearch(n,e_ies)!=null ||
+						binarySearch(n,e_ves)!=null ||
+						binarySearch(n,e_d)!=null ||
+						binarySearch(n,e_ed)!=null ||
+						binarySearch(n,e_ied)!=null))
+					{
+						var existed = false;
+						for(var k = 0; k<exist.length; k++)
+							if(exist[k]==n) existed = true;
+						if(!existed)
+						{
+							document.getElementById("result").value += n;
+							for(var k=n.length; k<20; k++)
+								document.getElementById("result").value += " ";
+							document.getElementById("result").value += toeflWords[index] + "\n";
+							exist.push(n);
+							sum ++;
+						}
+					}
+				}
+			}
+			document.getElementById("result").value +=
+				sum/total + " " + sum + " " + total;
+		}
+		
+		function replace()
+		{
+			var text = document.getElementById("textarea").value;
+			document.getElementById("replace").value = "\\subsubsection{}\n";
+			var count = 0;
+			for(var i=0; i<text.length; i++)
+			{
+				if(text.charAt(i)=="\"")
+				{
+					if(count % 2!=0)
+						document.getElementById("replace").value += text.charAt(i);
+					else
+						document.getElementById("replace").value += "``";
+					count++;
+				}
+				else if(text.charAt(i)=="\n" && text.charAt(i-1)!="\n")
+				{
+					document.getElementById("replace").value += "\\par\n";
+				}
+				else
+					document.getElementById("replace").value += text.charAt(i);
+			}
+		}
+		
+		function binarySearch(wrd,arr)
+		{
+			var left=0;
+			var right=arr.length;
+			while(left<right)
+			{
+				var mid=Math.floor((left+right)/2);
+				if(arr[mid]==wrd) return mid;
+				if(arr[mid]<wrd) left=mid+1;
+				else right=mid;
+			}
+			return null;
+		}
+		
+	</script>
+</body>
+</html>

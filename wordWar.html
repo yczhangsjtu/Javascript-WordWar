@@ -1,0 +1,32 @@
+<html>
+<head>
+<meta name="charset" value="utf-8"/>
+<title>Word War</title>
+</head>
+<body>
+
+<p id="command">&gt;</p>
+<button onclick="printMyWords()">show words</button>
+<button onclick="document.getElementById('words').innerHTML = ''">clear words</button><br/>
+<canvas width=1300 height=530 id="display">
+Your browser doesn't support this game.
+</canvas>
+
+<p id="words"></p>
+
+<img src="troop.png" id="troop" width=0></img>
+<img src="camp.png" id="camp" width=0></img>
+<img src="tower.png" id="tower" width=0></img>
+
+<script src="toeflWords.js"></script>
+<script src="inWords.js"></script>
+<script src="youdaoDictionary.js"></script>
+<script src="class.js"></script>
+<script src="wordWar.js"></script>
+<script src="AI.js"></script>
+<script src="draw.js"></script>
+<!--script src="Mission.js"></script-->
+<script src="WorldWar.js"></script>
+
+</body>
+</html>

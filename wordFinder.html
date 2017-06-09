@@ -1,0 +1,105 @@
+<html>
+<head>
+<title>Word Finder</title>
+</head>
+<body>
+	<button type="button" onclick="find()">Find</button>
+	<button type="button"
+	onclick="document.getElementById('l').value=randomWord(document.getElementById('l').value);document.getElementById('c').value=youdaoDictionaryGetMeaning(binarySearchInDict(document.getElementById('l').value))">
+	Generate</button>
+	<input type="text"	id="l"/>
+	<input type="text"	id="c"/><br/>
+	<button type="button" onclick="searchInDict()">Find</button>
+	<input type="text"	id="p"/>
+	<input type="text"	id="r"/><br/>
+	<br/>
+	<textarea id="textarea" style="height:600;width:300"></textarea>
+	<textarea id="result" style="height:600;width:300"></textarea>
+	
+	<script src="toeflWords.js"></script>
+	<script src="youdaoDictionary.js"></script>
+	
+	<script>
+	function temp()
+	{
+		var tmp = document.getElementById("textarea").value.split("\n");
+		for(var i = 0; i<tmp.length; i++)
+		{
+			document.getElementById("result").value += 
+				tmp[i] + "\n" + 
+				youdaoDictionaryGetPron(binarySearchInDict(tmp[i])) + "\n" +
+				youdaoDictionaryGetMeaning(binarySearchInDict(tmp[i])) + "\n";
+		}
+	}*/
+	/*
+	function find()
+	{
+		document.getElementById("result").value = "";
+		var tmp = document.getElementById("textarea").value.split("\n");
+		for(var i = 0; i<tmp.length; i++)
+		{
+			document.getElementById("result").value += randomWord(tmp[i]) + "\n";
+		}
+	}
+	
+	function searchInDict()
+	{
+		document.getElementById("result").value = "";
+		var pres = document.getElementById("p").value.split(" ");
+		for(var i = 0; i<pres.length; i++)
+			document.getElementById("result").value += FindPre(pres[i])+"\n";
+	}
+	
+	function randomWord(fl)
+	{
+		var tmp = [];
+		var i = FirstGE(fl);
+		while(i<toeflWords.length && toeflWords[i].search(fl) == 0)
+		{
+			tmp.push(toeflWords[i]);
+			i++;
+		}
+		return tmp[Math.floor(tmp.length*Math.random())];
+	}
+	
+	function FirstGE(wrd)
+	{
+		var left=0;
+		var right=toeflWords.length;
+		while(left<right)
+		{
+			var mid=Math.floor((left+right)/2);
+			if(toeflWords[mid]==wrd) return mid;
+			if(toeflWords[mid]<wrd) left=mid+1;
+			else right=mid;
+		}
+		return left;
+	}
+	
+	function FindPre(wrd)
+	{
+		var left=0;
+		var right=youdaoDictionary.length;
+		var result = null;
+		var rv = [];
+		while(left<right)
+		{
+			var mid=Math.floor((left+right)/2);
+			if(youdaoDictionaryGetWord(mid)==wrd) result = mid;
+			if(youdaoDictionaryGetWord(mid)<wrd) left=mid+1;
+			else right=mid;
+		}
+		if(result == null) result = left;
+		while(result<youdaoDictionary.length && youdaoDictionaryGetWord(result).search(wrd) == 0)
+		{
+			var w = youdaoDictionaryGetWord(result);
+			if(w.length <= wrd.length*2 || w.length <= 5)
+				rv.push(w);
+			result ++;
+		}
+		return rv;
+	}
+	
+	</script>
+</body>
+</html>
