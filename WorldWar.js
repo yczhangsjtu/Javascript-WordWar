@@ -3,12 +3,12 @@
 var countries = [];
 countries.push(["red",[10,10]]);
 countries.push(["yellow",[40,25]]);
-countries.push(["orange",[50,30]]);
-countries.push(["black",[34,34]]);
+countries.push(["orange",[50,10]]);
+countries.push(["black",[24,34]]);
 countries.push(["blue",[25,58]]);
-countries.push(["brown",[33,22]]);
-countries.push(["white",[34,40]]);
-countries.push(["purple",[15,20]]);
+countries.push(["brown",[40,42]]);
+countries.push(["white",[50,70]]);
+countries.push(["purple",[10,60]]);
 
 var p=[], index;
 var autoTrain = false;
@@ -20,70 +20,17 @@ function test()
 	debug = true;
 }
 
-index = 0;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+function setCountry(index) {
+	p = [countries[index][1][0],countries[index][1][1]];
+	battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
+	p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+	p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+	p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+	p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+}
 
-
-index = 1;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 2;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 3;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 4;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 5;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 6;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-
-index = 7;
-p = [countries[index][1][0],countries[index][1][1]];
-battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"training");
-p[0]-=2;p[1]-=2;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[1]+=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
-p[0]-=4;battleField[p[0]][p[1]] = new Building(wordAtPosition(p),countries[index][0],"tower");
+for(var i = 0; i < 8; i++)
+	setCountry(i);
 
 window.setInterval("if(going) moveon();", 100);
 window.setInterval("firego()", 20);

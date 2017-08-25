@@ -10,7 +10,10 @@ var cvs = document.getElementById("display"); //Canvas to display the game
 //Numbers
 var fieldHeight = 60;
 var fieldWidth = 90;
-var screenWidth = cvs.width - 180;
+var panelWidth = 180;
+var screenMarginX = 50;
+var screenMarginY = 120;
+var screenWidth = cvs.width - panelWidth;
 var screenHeight = cvs.height;
 
 //Keys

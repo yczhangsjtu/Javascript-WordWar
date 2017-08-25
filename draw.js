@@ -3,13 +3,16 @@
  *  brief: all the drawing functions here
  */
 
- var gridSize = 100;
- var viewPoint = [0,0];
+var gridSize = 100;
+var viewPoint = [0,0];
+
+var viewPointMoving = [0,0];
  
- var viewPointMoving = [0,0];
- 
-function draw()
-{
+function draw() {
+	cvs.width = window.innerWidth - screenMarginX;
+	cvs.height = window.innerHeight - screenMarginY;
+	screenWidth = cvs.width - panelWidth;
+	screenHeight = cvs.height;
 	var ctx = cvs.getContext("2d");
 	ctx.clearRect(0,0,screenWidth,screenHeight);
 	if(	viewPoint[0] + screenWidth + viewPointMoving[0] <= gridSize*fieldWidth &&
@@ -24,15 +27,13 @@ function draw()
 	drawPannel(ctx);
 }
 
-function drawBattleField(ctx)
-{
+function drawBattleField(ctx) {
 	var mini = Math.floor(viewPoint[1] / gridSize);
 	var minj = Math.floor(viewPoint[0] / gridSize);
 	var maxi = Math.ceil((viewPoint[1]+screenHeight) / gridSize);
 	var maxj = Math.ceil((viewPoint[0]+screenWidth) / gridSize);
-	for(var i=mini; i<=maxi; i++)
-		for(var j=minj; j<=maxj; j++)
-		{
+	for(var i=mini; i<=maxi; i++) {
+		for(var j=minj; j<=maxj; j++) {
 			var x = j * gridSize - viewPoint[0];
 			var y = i * gridSize - viewPoint[1];
 			ctx.save();
@@ -46,6 +47,7 @@ function drawBattleField(ctx)
 			ctx.fillText(meaning, x + gridSize/20, y + gridSize/6 + gridSize/3);
 			ctx.restore();
 		}
+	}
 }
 
 function drawTroopsAndBuildings(ctx)
@@ -162,7 +164,7 @@ function drawPannel(ctx)
 {
 	ctx.save();
 	ctx.fillStyle = "orange";
-	ctx.fillRect(screenWidth,0,180,screenHeight);
+	ctx.fillRect(screenWidth,0,panelWidth,screenHeight);
 	
 	for(var i=0; i<fieldHeight; i++)
 		for(var j=0; j<fieldWidth; j++)
@@ -173,9 +175,9 @@ function drawPannel(ctx)
 				ctx.fillStyle = battleField[i][j]._color;
 			ctx.fillRect(screenWidth+2*j,2*i,2,2);
 		}
-	ctx.strokeRect(	viewPoint[0]/fieldWidth/gridSize*180+screenWidth,
+	ctx.strokeRect(	viewPoint[0]/fieldWidth/gridSize*panelWidth+screenWidth,
 					viewPoint[1]/fieldHeight/gridSize*120,
-					screenWidth/fieldWidth/gridSize*180,
+					screenWidth/fieldWidth/gridSize*panelWidth,
 					screenHeight/fieldHeight/gridSize*120);
 	ctx.restore();
 }
