@@ -45,7 +45,7 @@ for(var i=1; i<8; i++)
 	window.setInterval("if(going) ai["+i+"].defendAttack()",1000);
 }
 
-ai[0]=new AI(0,12,12,12,12);
+ai[0]=new AI(0,12,12,12,12,12);
 window.setInterval("if(autoDefend && going) ai["+0+"].defend()",500);
 window.setInterval("if(autoTrain && going) ai["+0+"].train();",10000);
 window.setInterval("if(autoAttack && going) ai["+0+"].defendAttack();",1000);

@@ -397,6 +397,7 @@ function handleInstruction(evt)
 				errorInfo = "Not in the right position!";
 				return;
 			}
+			battleField[objtroop[0]][objtroop[1]]._word = "";
 			battleField[objtroop[0]][objtroop[1]] = new Building(buildWord, color, subject);
 			errorInfo += (" " + operator + " " + checkMeaning(operator)
 				 + " " + buildWord + checkMeaning(buildWord));

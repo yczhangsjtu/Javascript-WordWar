@@ -171,16 +171,52 @@ function isEnemyOf(color,i,j) {
 	return battleField[i][j] != null && battleField[i][j]._color != color;
 }
 
-function getNearestEnemy(color,base) {
+function getNearestEnemy(color,center) {
 	var target = null;
 	for(var i=0; i<fieldHeight; i++) {
 		for(var j=0; j<fieldWidth; j++) {
-			if(isEnemyOf(color,i,j) && (target == null || further(base,target,[i,j])))
+			if(isEnemyOf(color,i,j) && (target == null || further(center,target,[i,j])))
 				target = [i,j];
 		}
 	}
 	return target;
 }
+
+AI.prototype.getNearestEnemyToBase = function(k) {
+	var base = this.troopBase(k);
+	return getNearestEnemy(this._color, base);
+}
+
+AI.prototype.getNearestEnemyToTroop = function(k) {
+	var centerx = 0, centery = 0;
+	var troop = this._troops[k];
+	for(var i = 0; i < troop.length; i++) {
+		centerx += troop[i]._position[0];
+		centery += troop[i]._position[1];
+	}
+	centerx /= troop.length;
+	centery /= troop.length;
+	var target = null;
+	for(var i=0; i<fieldHeight; i++) {
+		for(var j=0; j<fieldWidth; j++) {
+			if(isEnemyOf(this._color,i,j) &&
+				(target == null || further([centerx,centery],target,[i,j])))
+				target = [i,j];
+		}
+	}
+	return target;
+}
+
+AI.prototype.getNearestEnemyToTroopOrBase = function(k) {
+	var base = this._base;
+	var enemy_inbase = getNearestEnemy(this._color, base);
+	if(Math.abs(enemy_inbase[0] - this._base[0]) < 5 &&
+		 Math.abs(enemy_inbase[1] - this._base[1]) < 5) {
+		return enemy_inbase;
+	}
+	return this.getNearestEnemyToTroop(k);
+}
+
 
 AI.prototype.sendTroop = function(k,target) {
 	for(var i = 0; i<this._troops[k].length; i++) {
@@ -207,7 +243,7 @@ AI.prototype.attackTarget = function(targetFunc) {
 		if(this._isAttacking[k]) {
 			span = getSpan(this._troops[k]);
 			if(span < this._troops[k].length)
-				target = targetFunc(this._color,base);
+				target = targetFunc(k);
 			else
 				target = this._troops[k][0]._position;
 		} else {
@@ -218,12 +254,16 @@ AI.prototype.attackTarget = function(targetFunc) {
 }
 
 AI.prototype.defendAttack = function() {
-	this.attackTarget(getNearestEnemy);
+	_this = this;
+	this.attackTarget(function (k) {
+		return _this.getNearestEnemyToTroopOrBase(k)
+	});
 }
 
-AI.prototype.attack = function(tword) {
-	this.attackTarget(function(){
-		return positionOfWord(tword);
+AI.prototype.attack = function() {
+	_this = this;
+	this.attackTarget(function (k) {
+		return _this.getNearestEnemyToTroop(k);
 	});
 }
 
