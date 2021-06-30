@@ -8,28 +8,37 @@ function isTroopFor(i,j,color) {
 	return battleField[i][j]._color == color;
 }
 
-function collectTroopFor(troops,color) {
-	for(var i = 0; i < fieldHeight; i++) {
-		for(var j = 0; j < fieldWidth; j++) {
-			if(isTroopFor(i,j,color)) {
-				troops.push(battleField[i][j]);
-			}
-		}
-	}
-}
-
-function AI(index,maxGuard,maxTroop1,maxTroop2,maxTroop3,maxTroop4)
+function BaseAI(color,base,maxGuard,maxTroop1,maxTroop2,maxTroop3,maxTroop4)
 {
-	this._index = index;
 	this._guards = [];
 	this._troops = [[],[],[],[]];
-	this._color = countries[index][0];
+	this._color = color;
 	this._maxGuard = maxGuard;
 	this._maxTroop = [maxTroop1,maxTroop2,maxTroop3,maxTroop4];
 	this._isAttacking = [false,false,false,false];
-	this._base = countries[index][1];
+	this._base = base;
 	this._training = battleField[this._base[0]][this._base[1]]._word;
-	collectTroopFor(this._troops,this._color);
+	this.collectTroop();
+}
+
+BaseAI.prototype.collectTroop = function() {
+	for(var i=0; i<fieldHeight; i++) {
+		for(var j=0; j<fieldWidth; j++) {
+			troop = battleField[i][j];
+			if(isTroopFor(i,j,this._color) && !troop._arranged
+				 && troop._trainingBase == this._training) {
+				tryPushTroop = tryPush.bind(null,troop);
+				troop._arranged = tryPushTroop(this._guards,this._maxGuard);
+				if(troop._arranged) continue;
+				var order = randomOrder(4);
+				for(var k = 0; k < 4; k++) {
+					kk = order[k];
+					troop._arranged = tryPushTroop(this._troops[kk],this._maxTroop[kk]);
+					if(troop._arranged) break;
+				}
+			}
+		}
+	}
 }
 
 function arrayLengthLessThan(arr1, arr2) {
@@ -42,6 +51,20 @@ function arrayLengthLessThan(arr1, arr2) {
 function dispatchTrainEvent(color,training,word) {
 	var ins = new CustomEvent('instruction', {
 		'detail' : color + " train " + training + " " + word
+	});
+	window.dispatchEvent(ins);
+}
+
+function dispatchBuildTrainingEvent(color,word) {
+	var ins = new CustomEvent('instruction', {
+		'detail' : color + " build " + word + " training"
+	});
+	window.dispatchEvent(ins);
+}
+
+function dispatchBuildTowerEvent(color,word) {
+	var ins = new CustomEvent('instruction', {
+		'detail' : color + " build " + word + " tower"
 	});
 	window.dispatchEvent(ins);
 }
@@ -70,7 +93,7 @@ function tryPush(troop,arr,maxSize) {
 	return false;
 }
 
-AI.prototype.train = function()
+BaseAI.prototype.train = function()
 {
 	if(this._guards.length < this._maxGuard ||
 		arrayLengthLessThan(this._troops,this._maxTroop)) {
@@ -81,23 +104,7 @@ AI.prototype.train = function()
 	for(var k=0; k<4; k++) {
 		removeEmptyTroop(this._troops[k]);
 	}
-	
-	for(var i=0; i<fieldHeight; i++) {
-		for(var j=0; j<fieldWidth; j++) {
-			troop = battleField[i][j];
-			if(isTroopFor(i,j,this._color) && !troop._arranged) {
-				tryPushTroop = tryPush.bind(null,troop);
-				troop._arranged = tryPushTroop(this._guards,this._maxGuard);
-				if(troop._arranged) continue;
-				var order = randomOrder(4);
-				for(var k = 0; k < 4; k++) {
-					kk = order[k];
-					troop._arranged = tryPushTroop(this._troops[kk],this._maxTroop[kk]);
-					if(troop._arranged) break;
-				}
-			}
-		}
-	}
+	this.collectTroop();
 }
 
 function dispatchMoveEvent(color,word,target) {
@@ -105,7 +112,7 @@ function dispatchMoveEvent(color,word,target) {
 	window.dispatchEvent(ins);
 }
 
-AI.prototype.defendGuard = function(index,x,y,hold) {
+BaseAI.prototype.defendGuard = function(index,x,y,hold) {
 	guard = this._guards[index];
 	if(guard == undefined) return;
 	if(hold && guard._target != null) return;
@@ -113,19 +120,22 @@ AI.prototype.defendGuard = function(index,x,y,hold) {
 	dispatchMoveEvent(this._color,guard._word,target);
 }
 
-AI.prototype.defendPosition = function(x,y) {
+BaseAI.prototype.defendPosition = function(x,y) {
 	for(var i=-1; i<=1; i++) {
 		for(var j=-1; j<=1; j++) {
-			if(battleField[this._base[0]+x+j][this._base[1]+y+i]!=null &&
-				battleField[this._base[0]+x+j][this._base[1]+y+i]._color != this._color) {
-				for(var k=0; k<this._guards.length; k++)
-					this.defendGuard(k,x+j,y+i);
+			if(this._base[0]+x+j >= 0 && this._base[0]+x+j < fieldHeight &&
+				 this._base[1]+y+i >= 0 && this._base[1]+y+i < fieldWidth) {
+				if(battleField[this._base[0]+x+j][this._base[1]+y+i]!=null &&
+					battleField[this._base[0]+x+j][this._base[1]+y+i]._color != this._color) {
+					for(var k=0; k<this._guards.length; k++)
+						this.defendGuard(k,x+j,y+i);
+				}
 			}
 		}
 	}
 }
 
-AI.prototype.defend = function()
+BaseAI.prototype.defend = function()
 {
 	this.defendGuard(0,-5,-1,true);
 	this.defendGuard(1, 5, 1,true);
@@ -182,12 +192,12 @@ function getNearestEnemy(color,center) {
 	return target;
 }
 
-AI.prototype.getNearestEnemyToBase = function(k) {
+BaseAI.prototype.getNearestEnemyToBase = function(k) {
 	var base = this.troopBase(k);
 	return getNearestEnemy(this._color, base);
 }
 
-AI.prototype.getNearestEnemyToTroop = function(k) {
+BaseAI.prototype.getNearestEnemyToTroop = function(k) {
 	var centerx = 0, centery = 0;
 	var troop = this._troops[k];
 	for(var i = 0; i < troop.length; i++) {
@@ -207,9 +217,10 @@ AI.prototype.getNearestEnemyToTroop = function(k) {
 	return target;
 }
 
-AI.prototype.getNearestEnemyToTroopOrBase = function(k) {
+BaseAI.prototype.getNearestEnemyToTroopOrBase = function(k) {
 	var base = this._base;
 	var enemy_inbase = getNearestEnemy(this._color, base);
+	if(enemy_inbase == null) return null;
 	if(Math.abs(enemy_inbase[0] - this._base[0]) < 5 &&
 		 Math.abs(enemy_inbase[1] - this._base[1]) < 5) {
 		return enemy_inbase;
@@ -218,7 +229,7 @@ AI.prototype.getNearestEnemyToTroopOrBase = function(k) {
 }
 
 
-AI.prototype.sendTroop = function(k,target) {
+BaseAI.prototype.sendTroop = function(k,target) {
 	for(var i = 0; i<this._troops[k].length; i++) {
 		var h = Math.floor(Math.random() * 5) - 2;
 		var v = Math.floor(Math.random() * 5) - 2;
@@ -227,11 +238,11 @@ AI.prototype.sendTroop = function(k,target) {
 	}
 }
 
-AI.prototype.troopBase = function(index) {
+BaseAI.prototype.troopBase = function(index) {
 	return [this._base[0]+((index/2)*2-1)*6,this._base[1]+((index%2)*2-1)*6];
 }
 
-AI.prototype.attackTarget = function(targetFunc) {
+BaseAI.prototype.attackTarget = function(targetFunc) {
 	for(var k=0; k<4; k++) {
 		if(this._troops[k].length<=0) continue;
 		var base = this.troopBase(k);
@@ -249,25 +260,25 @@ AI.prototype.attackTarget = function(targetFunc) {
 		} else {
 			target = base;
 		}
-		this.sendTroop(k,target);
+		if(target != null) this.sendTroop(k,target);
 	}
 }
 
-AI.prototype.defendAttack = function() {
+BaseAI.prototype.defendAttack = function() {
 	_this = this;
 	this.attackTarget(function (k) {
 		return _this.getNearestEnemyToTroopOrBase(k)
 	});
 }
 
-AI.prototype.attack = function() {
+BaseAI.prototype.attack = function() {
 	_this = this;
 	this.attackTarget(function (k) {
 		return _this.getNearestEnemyToTroop(k);
 	});
 }
 
-AI.prototype.troopDefend = function() {
+BaseAI.prototype.troopDefend = function() {
 	for(var k=0; k<4; k++) {
 		if(this._troops[k].length<=0) continue;
 		this.sendTroop(k,this.troopBase(k));
@@ -289,8 +300,88 @@ function randomOrder(n) {
 }
 
 function randomShuffle(arr) {
-	for(var n = 1; i < arr.length; i++) {
+	for(var n = 1; n < arr.length; n++) {
 		var k = Math.floor(Math.random() * (n+1));
 		swap(arr,k,n);
+	}
+}
+
+function ExpandAI(color) {
+	this._color = color;
+}
+
+function findAllBases(color) {
+	var ret = [];
+	for(var i = 0; i < fieldHeight; i++) {
+		for(var j = 0; j < fieldWidth; j++) {
+			if(battleField[i][j] != null) {
+				if(battleField[i][j]._type == "training") {
+					if(battleField[i][j]._color == color) {
+						ret.push([i,j]);
+					}
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+function findClosestTrainingPos(bases, threshold) {
+	var dist = -1, pos = null, closestBase = null;
+	for(var i = 0; i < fieldHeight; i++) {
+		for(var j = 0; j < fieldWidth; j++) {
+			if(wordAtPosition([i,j]).length <= 4 &&
+				(battleField[i][j] == null || battleField[i][j]._type == "troop")) {
+				var troop = searchTroop(wordAtPosition([i,j]));
+				if(troop != null && troop._color != bases[0]._color) continue;
+				var tempdist = -1, temppos = null, tempclosest = null;
+				for(var k = 0; k < bases.length; k++) {
+					var newdist = Math.abs(bases[k][0]-i) + Math.abs(bases[k][1]-j);
+					if(newdist < tempdist || tempdist == -1) {
+						tempdist = newdist;
+						temppos = [i,j];
+						tempclosest = bases[k];
+					}
+				}
+				if(tempdist > threshold && (tempdist < dist || dist == -1)) {
+					dist = tempdist;
+					pos = temppos;
+					closestBase = tempclosest;
+				}
+			}
+		}
+	}
+	return [pos,closestBase];
+}
+
+ExpandAI.prototype.expandTraining = function() {
+	var bases = findAllBases(this._color);
+	if(bases.length == 0) return;
+	var closeTrainingPosBase = findClosestTrainingPos(bases, 8);
+	var closestTrainingPos = closeTrainingPosBase[0];
+	var closestTrainingBase = closeTrainingPosBase[1];
+	if(closestTrainingPos == null) return;
+	var word = wordAtPosition([closestTrainingPos[0],closestTrainingPos[1]]);
+	var baseWord = wordAtPosition([closestTrainingBase[0],closestTrainingBase[1]]);
+	var troop = searchTroop(word);
+	if(troop == null) {
+		dispatchTrainEvent(this._color,baseWord,word);
+	}
+}
+
+ExpandAI.prototype.buildTraining = function() {
+	for(var i = 0; i < fieldHeight; i++) {
+		for(var j = 0; j < fieldWidth; j++) {
+			if(battleField[i][j] == null) continue;
+			if(battleField[i][j]._color == this._color &&
+				 battleField[i][j]._type == "troop" &&
+				 battleField[i][j]._word.length <= 4) {
+				if(battleField[i][j]._word == wordAtPosition([i,j])) {
+					dispatchBuildTrainingEvent(this._color, battleField[i][j]._word);
+				} else {
+					dispatchMoveEvent(this._color, battleField[i][j]._word, battleField[i][j]._word);
+				}
+			}
+		}
 	}
 }

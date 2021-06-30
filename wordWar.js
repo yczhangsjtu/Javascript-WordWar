@@ -380,12 +380,12 @@ function handleInstruction(evt)
 		{
 			operator = words[i];
 			objtroop = searchTroop(operator);
-			var color = battleField[objtroop[0]][objtroop[1]]._color;
 			if (objtroop == null)
 			{
 				errorInfo = "Troop not found!";
 				return;
 			}
+			var color = battleField[objtroop[0]][objtroop[1]]._color;
 			if (color != commanderColor)
 			{
 				errorInfo = "Wrong commander!";
@@ -395,6 +395,10 @@ function handleInstruction(evt)
 			if (buildWord != operator)
 			{
 				errorInfo = "Not in the right position!";
+				return;
+			}
+			if(subject == "training" && operator.length > 4) {
+				errorInfo = "Training base cannot be longer than 4!";
 				return;
 			}
 			battleField[objtroop[0]][objtroop[1]]._word = "";
@@ -448,29 +452,31 @@ function handleInstruction(evt)
 		color = battleField[objbuilding[0]][objbuilding[1]]._color;
 		if (objbuilding[0] > 0 && battleField[objbuilding[0] - 1][objbuilding[1]] == null)
 		{
-			battleField[objbuilding[0] - 1][objbuilding[1]] =
-				new Troop(subject, color, [objbuilding[0] - 1, objbuilding[1]]);
+			troop = new Troop(subject, color, [objbuilding[0] - 1, objbuilding[1]]);
+			battleField[objbuilding[0] - 1][objbuilding[1]] = troop;
 		}
 		else if (objbuilding[1] > 0 && battleField[objbuilding[0]][objbuilding[1] - 1] == null)
 		{
-			battleField[objbuilding[0]][objbuilding[1] - 1] =
-				new Troop(subject, color, [objbuilding[0], objbuilding[1] - 1]);
+			troop = new Troop(subject, color, [objbuilding[0], objbuilding[1] - 1]);
+			battleField[objbuilding[0]][objbuilding[1] - 1] = troop;
 		}
 		else if (objbuilding[0] < fieldHeight - 1 && battleField[objbuilding[0] + 1][objbuilding[1]] == null)
 		{
-			battleField[objbuilding[0] + 1][objbuilding[1]] =
-				new Troop(subject, color, [objbuilding[0] + 1, objbuilding[1]]);
+			troop = new Troop(subject, color, [objbuilding[0] + 1, objbuilding[1]]);
+			battleField[objbuilding[0] + 1][objbuilding[1]] = troop;
 		}
 		else if (objbuilding[1] < fieldWidth - 1 && battleField[objbuilding[0]][objbuilding[1] + 1] == null)
 		{
-			battleField[objbuilding[0]][objbuilding[1] + 1] =
-				new Troop(subject, color, [objbuilding[0], objbuilding[1] + 1]);
+			troop = new Troop(subject, color, [objbuilding[0], objbuilding[1] + 1]);
+			battleField[objbuilding[0]][objbuilding[1] + 1] = troop;
 		}
 		else
 		{
 			errorInfo = "No room for new troop!";
+			troop = null;
 			return;
 		}
+		troop._trainingBase = operator;
 		
 		errorInfo = "Done!";
 		errorInfo += (" " + subject + checkMeaning(subject)

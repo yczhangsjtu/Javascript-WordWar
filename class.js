@@ -23,6 +23,7 @@ function Troop(word, color, pos)
 	this._type = "troop";
 	this._moved = false;
 	this._arranged = false;
+	this._trainingBase = null;
 }
 
 Troop.prototype.damaged = function (force)
